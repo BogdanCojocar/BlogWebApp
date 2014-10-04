@@ -90,6 +90,11 @@ public class BlogPostDAO {
 				new Update().push("comments", comment), BlogPostDTO.class);
 	}
 	
+	public List<CommentDTO> getAllCommentsFromPost(String permalink) {
+		Query query = query(where("permalink").is(permalink));
+		return operations.find(query, CommentDTO.class);
+	}
+	
 	public void clearCollection() {
 		operations.remove(new Query(), "blogpost");
 	}

@@ -38,7 +38,7 @@ public class BlogWebService {
 	private static final String POST_PATH = "/post/{permalink}";
 	private static final String NEWPOST_PATH = "/newpost";
 	private static final String NEWCOMMENT_PATH = "/newcomment";
-	private static final String TAG_PATH = "/tag/{thetag}";
+	private static final String TAG_PATH = "/tag/{tag}";
 
 	@Autowired
 	private BlogWebServiceFrontend blogFrontend;
@@ -57,9 +57,8 @@ public class BlogWebService {
 
 	@RequestMapping(value = HOME_PAGE_PATH, method = RequestMethod.GET)
 	public String blogHomePage(HttpServletRequest request) {
-		String username = sessionDAO
-				.findUserNameBySessionId(WebServiceUtilities.getSessionCookie(
-						request).getValue());
+		Cookie cookie = WebServiceUtilities.getSessionCookie(request);
+		String username = sessionDAO.findUserNameBySessionId(cookie.getValue());
 
 		List<BlogPostDTO> posts = blogPostDAO
 				.findPostByDateDescending(POSTS_NUMBER_LIMIT);
@@ -145,7 +144,7 @@ public class BlogWebService {
 		templateData.put("username_error", "");
 		templateData.put("email_error", "");
 		templateData.put("verify_error", "");
-		return blogFrontend.addTemplate(BlogWebServiceFrontend.LOGIN_TEMPLATE,
+		return blogFrontend.addTemplate(BlogWebServiceFrontend.SIGNUP_TEMPLATE,
 				templateData);
 	}
 
@@ -173,7 +172,7 @@ public class BlogWebService {
 				String sessionID = sessionDAO.startSession(username);
 				LOG.info("Session ID is " + sessionID);
 				response.addCookie(new Cookie("session", sessionID));
-				response.sendRedirect("/welcome");
+				response.sendRedirect(WELCOME_PATH);
 				return "";
 			}
 		} else {
@@ -252,23 +251,23 @@ public class BlogWebService {
 			return blogFrontend.addTemplate(
 					BlogWebServiceFrontend.ENTRY_TEMPLATE, postData);
 		} else {
-			blogPostDAO.addPostComment(name, email, body, permalink);
+			blogPostDAO.addPostComment(name, body, email, permalink);
 			response.sendRedirect("/post/" + permalink);
 			return "";
 		}
 	}
 
 	@RequestMapping(value = TAG_PATH, method = RequestMethod.GET)
-	public String showPostForTag(@PathVariable String theTag,
+	public String showPostForTag(@PathVariable String tag,
 			HttpServletRequest request, HttpServletResponse response) {
-
+		System.out.println("here");
 		Cookie cookie = WebServiceUtilities.getSessionCookie(request);
 		String sessionId = cookie.getValue();
 		String username = sessionDAO.findUserNameBySessionId(sessionId);
 
 		Map<String, Object> templateData = new HashMap<String, Object>();
 		List<BlogPostDTO> posts = blogPostDAO.findPostByTagWithDateDescending(
-				theTag, POSTS_NUMBER_LIMIT);
+				tag, POSTS_NUMBER_LIMIT);
 
 		templateData.put("myposts", posts);
 		if (!username.isEmpty()) {

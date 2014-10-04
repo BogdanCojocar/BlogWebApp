@@ -3,7 +3,7 @@ package org.home.data;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "comment")
+@Document(collection = "comments")
 public class CommentDTO {
 
 	@Indexed
